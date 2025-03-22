@@ -1,0 +1,14 @@
+# Api url variable
+@url = http://localhost:8080/api
+
+### GetUsers
+GET {{url}}/user
+
+### CreateUser
+POST {{url}}/user
+Content-Type: application/json
+
+{
+  "username": "J",
+  "email": "Fd.cm"
+}
