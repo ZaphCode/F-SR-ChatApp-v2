@@ -23,7 +23,11 @@ func New(addr string) *App {
 
 func (a *App) setGracefulShutdown(ctx context.Context) {
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTSTP)
+
+	signal.Notify(
+		signalChan, syscall.SIGTERM, syscall.SIGINT,
+		syscall.SIGQUIT, syscall.SIGTSTP,
+	)
 
 	go func() {
 		<-signalChan
@@ -43,7 +47,7 @@ func (a *App) RegisterHandlers(handlers ...Handler) {
 }
 
 func (a *App) Run(ctx context.Context) {
-	log.Printf("Serving on: http://localhost%s", a.Addr)
+	log.Printf("Serving on http://localhost%s", a.Addr)
 
 	a.setGracefulShutdown(ctx)
 

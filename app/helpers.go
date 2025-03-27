@@ -46,3 +46,19 @@ func (h HandleFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Json map helper
 
 type JM map[string]any
+
+// Responses
+
+type ApiStatus string
+
+const (
+	StatusFail    ApiStatus = "FAILURE"
+	StatusSuccess ApiStatus = "SUCCESS"
+)
+
+type Response struct {
+	Status  ApiStatus `json:"status"`
+	Message string    `json:"message"`
+	Data    any       `json:"data,omitempty"`
+	Error   any       `json:"error,omitempty"`
+}

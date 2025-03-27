@@ -10,6 +10,7 @@ import (
 func main() {
 	server := app.New(":8080")
 
+	// Initialize MongoDB repositories
 	server.RegisterHandlers(
 		handlers.NewUserHandler(),
 	)

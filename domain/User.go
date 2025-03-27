@@ -29,6 +29,6 @@ type UserRepository interface {
 	FindByID(id uuid.UUID) (User, error)
 	FindAll() ([]User, error)
 	Save(user *User) error
-	Update(user *User) error
+	Update(id uuid.UUID, user *User) error
 	Remove(id uuid.UUID) error
 }

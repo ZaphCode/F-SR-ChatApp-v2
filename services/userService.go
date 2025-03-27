@@ -13,26 +13,22 @@ type userService struct {
 	userRepo domain.UserRepository
 }
 
-// Delete implements domain.UserService.
-func (s *userService) Delete(id uuid.UUID) error {
-	panic("unimplemented")
-}
-
-// Get implements domain.UserService.
-func (s *userService) Get(id uuid.UUID) (domain.User, error) {
-	panic("unimplemented")
-}
-
-// GetAll implements domain.UserService.
-func (s *userService) GetAll() ([]domain.User, error) {
-	panic("unimplemented")
-}
-
-// Update implements domain.UserService.
-func (s *userService) Update(user *domain.User) error {
-	panic("unimplemented")
-}
-
 func (s *userService) Create(user *domain.User) error {
 	return s.userRepo.Save(user)
+}
+
+func (s *userService) Get(id uuid.UUID) (domain.User, error) {
+	return domain.User{}, nil
+}
+
+func (s *userService) GetAll() ([]domain.User, error) {
+	return nil, nil
+}
+
+func (s *userService) Update(user *domain.User) error {
+	return nil
+}
+
+func (s *userService) Delete(id uuid.UUID) error {
+	return s.userRepo.Remove(id)
 }

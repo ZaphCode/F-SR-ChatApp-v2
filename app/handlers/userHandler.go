@@ -43,14 +43,22 @@ func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	body, err := app.ReadAndValidateJson[dtos.NewUserDto](r)
 
 	if err != nil {
-		return app.WriteJson(w, http.StatusBadRequest, app.JM{"error": err})
+		return app.WriteJson(w, http.StatusBadRequest, app.Response{
+			Status: app.StatusFail, Message: "Invalid data", Error: err,
+		})
 	}
 
 	user := body.AdaptToUser()
 
 	if err := h.userService.Create(&user); err != nil {
-		return app.WriteJson(w, http.StatusBadRequest, app.JM{"error": err})
+		return app.WriteJson(w, http.StatusBadRequest, app.Response{
+			Status:  app.StatusFail,
+			Message: "Something when wrong while crating user",
+			Error:   err,
+		})
 	}
 
-	return app.WriteJson(w, http.StatusCreated, app.JM{"user": user})
+	return app.WriteJson(w, http.StatusCreated, app.Response{
+		Status: app.StatusSuccess, Message: "User created successfully", Data: user,
+	})
 }
