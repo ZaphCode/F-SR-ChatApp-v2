@@ -19,6 +19,7 @@ func NewUserHandler() *UserHandler {
 }
 
 func (h UserHandler) SetRoutes(mux *http.ServeMux) {
+	mux.Handle("GET /home", app.HandleFunc(h.GetIndex))
 	mux.Handle("GET /api/users", app.HandleFunc(h.GetUsers))
 	mux.Handle("GET /api/user", app.HandleFunc(h.GetUser))
 	mux.Handle("POST /api/user", app.HandleFunc(h.CreateUser))
@@ -34,7 +35,7 @@ func (h UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h UserHandler) GetUser(w http.ResponseWriter, r *http.Request) error {
-	return app.WriteJson(w, http.StatusOK, map[string]any{
+	return app.WriteJson(w, http.StatusOK, app.JM{
 		"user": domain.User{ID: uuid.New(), Username: "Alice"},
 	})
 }
@@ -60,5 +61,11 @@ func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 
 	return app.WriteJson(w, http.StatusCreated, app.Response{
 		Status: app.StatusSuccess, Message: "User created successfully", Data: user,
+	})
+}
+
+func (h UserHandler) GetIndex(w http.ResponseWriter, r *http.Request) error {
+	return app.RenderTmpl(w, "index", app.JM{
+		"User": domain.User{ID: uuid.New(), Username: "Alice"},
 	})
 }
