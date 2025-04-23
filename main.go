@@ -5,15 +5,30 @@ import (
 
 	"github.com/ZaphCode/F-SR-ChatApp/app"
 	"github.com/ZaphCode/F-SR-ChatApp/app/handlers"
+	"github.com/ZaphCode/F-SR-ChatApp/lib/mongodb"
+	"github.com/ZaphCode/F-SR-ChatApp/repositories"
+	"github.com/ZaphCode/F-SR-ChatApp/services"
 )
 
 func main() {
-	server := app.New(":8080")
+	db := mongodb.MustGetMongoClient("mongodb://localhost:27017").Database("fsr-sandbox")
 
-	// Initialize MongoDB repositories
+	// * Repositories
+	userRepository := repositories.NewMongoDBUserRepository(db.Collection("users"))
+
+	//* Services
+	userService := services.NewUserService(userRepository)
+
+	server := app.New(8080)
+
+	// * Handlers
 	server.RegisterHandlers(
-		handlers.NewUserHandler(),
+		handlers.NewAuthHandler(userService),
 	)
+
+	server.OnShutdown(func() {
+		db.Client().Disconnect(context.TODO())
+	})
 
 	server.Run(context.Background())
 }

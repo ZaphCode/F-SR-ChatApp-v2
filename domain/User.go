@@ -12,23 +12,23 @@ type User struct {
 	Email     string
 	Password  string
 	Verified  bool
-	Role      string
 	ImageUrl  string
 	CreatedAt time.Time
 }
 
 type UserService interface {
-	Create(user *User) error
-	Get(id uuid.UUID) (User, error)
+	Create(username, email, password string) (User, error)
+	GetByID(id uuid.UUID) (User, error)
+	GetByEmail(email string) (User, error)
 	GetAll() ([]User, error)
-	Update(user *User) error
+	Update(id uuid.UUID, user User) error
 	Delete(id uuid.UUID) error
 }
 
 type UserRepository interface {
+	Save(user *User) error
 	FindByID(id uuid.UUID) (User, error)
 	FindAll() ([]User, error)
-	Save(user *User) error
 	Update(id uuid.UUID, user *User) error
 	Remove(id uuid.UUID) error
 }

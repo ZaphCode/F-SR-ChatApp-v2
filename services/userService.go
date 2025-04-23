@@ -1,7 +1,10 @@
 package services
 
 import (
+	"time"
+
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
+	"github.com/ZaphCode/F-SR-ChatApp/utils"
 	"github.com/google/uuid"
 )
 
@@ -13,11 +16,40 @@ type userService struct {
 	userRepo domain.UserRepository
 }
 
-func (s *userService) Create(user *domain.User) error {
-	return s.userRepo.Save(user)
+func (s *userService) Create(username, email, password string) (domain.User, error) {
+	id, err := uuid.NewUUID()
+
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	hashPass, err := utils.HashPassword(password)
+
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	user := domain.User{
+		ID:        id,
+		Username:  username,
+		Email:     email,
+		Password:  hashPass,
+		Verified:  false,
+		CreatedAt: time.Now(),
+	}
+
+	if err := s.userRepo.Save(&user); err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
 }
 
-func (s *userService) Get(id uuid.UUID) (domain.User, error) {
+func (s *userService) GetByID(id uuid.UUID) (domain.User, error) {
+	return domain.User{}, nil
+}
+
+func (s *userService) GetByEmail(email string) (domain.User, error) {
 	return domain.User{}, nil
 }
 
@@ -25,7 +57,7 @@ func (s *userService) GetAll() ([]domain.User, error) {
 	return nil, nil
 }
 
-func (s *userService) Update(user *domain.User) error {
+func (s *userService) Update(id uuid.UUID, user domain.User) error {
 	return nil
 }
 

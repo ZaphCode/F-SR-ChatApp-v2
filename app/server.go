@@ -2,24 +2,24 @@ package app
 
 import (
 	"context"
-	"html/template"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 )
 
 type App struct {
 	http.Server
+	onShutdown func()
 }
 
-func New(addr string) *App {
+func New(addr uint) *App {
 	return &App{
 		http.Server{
-			Addr: addr,
-		},
+			Addr: fmt.Sprintf(":%d", addr),
+		}, nil,
 	}
 }
 
@@ -33,7 +33,11 @@ func (a *App) setGracefulShutdown(ctx context.Context) {
 
 	go func() {
 		<-signalChan
-		log.Println("Shutting down...")
+
+		if a.onShutdown != nil {
+			a.onShutdown()
+		}
+
 		a.Server.Shutdown(ctx)
 	}()
 }
@@ -52,24 +56,6 @@ func (a *App) RegisterHandlers(handlers ...Handler) {
 	a.Handler = mux
 }
 
-func RenderTmpl(w http.ResponseWriter, tmplName string, data any) error {
-	tmplPath := filepath.Join("templates", tmplName+".html")
-
-	tmplFiles := []string{
-		tmplPath,
-		// More components...
-		filepath.Join("templates", "components", "navbar.html"),
-	}
-
-	t, err := template.ParseFiles(tmplFiles...)
-
-	if err != nil {
-		return err
-	}
-
-	return t.ExecuteTemplate(w, tmplName, data)
-}
-
 func (a *App) Run(ctx context.Context) {
 	log.Printf("Serving on http://localhost%s", a.Addr)
 
@@ -78,4 +64,8 @@ func (a *App) Run(ctx context.Context) {
 	if err := a.Server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (a *App) OnShutdown(fn func()) {
+	a.onShutdown = fn
 }

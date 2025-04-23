@@ -2,7 +2,12 @@ package app
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
+	"path/filepath"
+
+	"github.com/ZaphCode/F-SR-ChatApp/utils"
+	"github.com/gorilla/sessions"
 )
 
 // Handler interface
@@ -26,14 +31,76 @@ func ReadAndValidateJson[T any](r *http.Request) (T, error) {
 		return data, err
 	}
 
-	if err := validate(data); err != nil {
+	if err := utils.Validate(data); err != nil {
 		return data, err
 	}
 
 	return data, nil
 }
 
-// Custom handler function
+func ReadAndValidateForm[T any](r *http.Request) (T, error) {
+	var data T
+
+	if err := r.ParseForm(); err != nil {
+		return data, err
+	}
+
+	mapped := make(map[string]any)
+
+	for key, val := range r.PostForm {
+		if len(val) > 0 {
+			mapped[key] = val[0]
+		}
+	}
+
+	mappedJson, err := json.Marshal(mapped)
+
+	if err != nil {
+		return data, err
+	}
+
+	if err := json.Unmarshal(mappedJson, &data); err != nil {
+		return data, err
+	}
+
+	if err := utils.Validate(data); err != nil {
+		return data, err
+	}
+
+	return data, nil
+}
+
+var store = sessions.NewCookieStore([]byte(utils.APP_SESSION_KEY))
+
+func SaveSession(w http.ResponseWriter, r *http.Request, key string, value any) error {
+	session, err := store.Get(r, utils.APP_SESSION_COOKIE)
+
+	if err != nil {
+		return err
+	}
+
+	session.Values[key] = value
+
+	return session.Save(r, w)
+}
+
+func Render(w http.ResponseWriter, tmplName string, data any) error {
+	tmplPath := filepath.Join("templates", tmplName+".html")
+
+	tmplFiles := []string{
+		tmplPath,
+		// More components...
+		filepath.Join("templates", "components", "navbar.html"),
+	}
+
+	t, err := template.ParseFiles(tmplFiles...)
+
+	if err != nil {
+		return err
+	}
+
+	return t.ExecuteTemplate(w, tmplName, data)
+}
 
 type HandleFunc func(http.ResponseWriter, *http.Request) error
 
@@ -57,8 +124,8 @@ const (
 )
 
 type Response struct {
-	Status  ApiStatus `json:"status"`
-	Message string    `json:"message"`
-	Data    any       `json:"data,omitempty"`
-	Error   any       `json:"error,omitempty"`
+	Status ApiStatus `json:"status"`
+	Msg    string    `json:"message"`
+	Data   any       `json:"data,omitempty"`
+	Error  any       `json:"error,omitempty"`
 }
