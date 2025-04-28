@@ -1,0 +1,31 @@
+{{ define "form" }}
+<!doctype html>
+<html>
+    <head>
+        <title>Title</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        {{ template "navbar" }}
+        <main>
+            <h2>Form view</h2>
+            {{ .Error }} {{ .Success }}
+            <form action="/form" method="post">
+                <input type="text" placeholder="name" name="name" />
+                <input type="number" placeholder="age" name="age" />
+                <input type="tel" placeholder="phone" name="phone" />
+                <input type="file" placeholder="img" name="file" />
+                <button style="background-color: lightblue">send</button>
+            </form>
+        </main>
+    </body>
+    <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 50%;
+        }
+    </style>
+</html>
+{{ end }}

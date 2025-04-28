@@ -49,6 +49,20 @@ func (s *userService) GetByID(id uuid.UUID) (domain.User, error) {
 	return domain.User{}, nil
 }
 
+func (s *userService) Authenticate(email, password string) (domain.User, error) {
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	if err := utils.VerifyHashedPassword(user.Password, password); err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
+}
+
 func (s *userService) GetByEmail(email string) (domain.User, error) {
 	return domain.User{}, nil
 }

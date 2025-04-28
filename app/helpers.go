@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -38,41 +39,9 @@ func ReadAndValidateJson[T any](r *http.Request) (T, error) {
 	return data, nil
 }
 
-func ReadAndValidateForm[T any](r *http.Request) (T, error) {
-	var data T
-
-	if err := r.ParseForm(); err != nil {
-		return data, err
-	}
-
-	mapped := make(map[string]any)
-
-	for key, val := range r.PostForm {
-		if len(val) > 0 {
-			mapped[key] = val[0]
-		}
-	}
-
-	mappedJson, err := json.Marshal(mapped)
-
-	if err != nil {
-		return data, err
-	}
-
-	if err := json.Unmarshal(mappedJson, &data); err != nil {
-		return data, err
-	}
-
-	if err := utils.Validate(data); err != nil {
-		return data, err
-	}
-
-	return data, nil
-}
-
 var store = sessions.NewCookieStore([]byte(utils.APP_SESSION_KEY))
 
-func SaveSession(w http.ResponseWriter, r *http.Request, key string, value any) error {
+func SaveSessionValue(w http.ResponseWriter, r *http.Request, key string, value any) error {
 	session, err := store.Get(r, utils.APP_SESSION_COOKIE)
 
 	if err != nil {
@@ -82,6 +51,22 @@ func SaveSession(w http.ResponseWriter, r *http.Request, key string, value any) 
 	session.Values[key] = value
 
 	return session.Save(r, w)
+}
+
+func GetSessionValue(r *http.Request, key string) (any, error) {
+	session, err := store.Get(r, utils.APP_SESSION_COOKIE)
+
+	if err != nil {
+		return nil, err
+	}
+
+	val, exists := session.Values[key]
+
+	if !exists {
+		return nil, fmt.Errorf("session key not found")
+	}
+
+	return val, nil
 }
 
 func Render(w http.ResponseWriter, tmplName string, data any) error {

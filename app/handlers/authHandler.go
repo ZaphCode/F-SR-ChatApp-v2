@@ -31,7 +31,7 @@ func (h *AuthHandler) SignUpView(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
-	newUser, err := app.ReadAndValidateJson[dtos.NewUserDto](r)
+	newUser, err := app.ReadAndValidateJson[dtos.SignUpDto](r)
 
 	if err != nil {
 		return app.WriteJson(w, http.StatusBadRequest, app.Response{
@@ -47,7 +47,33 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
+	app.SaveSessionValue(w, r, "user_id", user.ID)
+
 	return app.WriteJson(w, http.StatusCreated, app.Response{
 		Status: app.StatusSuccess, Msg: "User created successfully", Data: user,
+	})
+}
+
+func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
+	credentials, err := app.ReadAndValidateJson[dtos.SignInDto](r)
+
+	if err != nil {
+		return app.WriteJson(w, http.StatusBadRequest, app.Response{
+			Status: app.StatusFail, Msg: "Invalid data", Error: err,
+		})
+	}
+
+	user, err := h.userService.Authenticate(credentials.Email, credentials.Password)
+
+	if err != nil {
+		return app.WriteJson(w, http.StatusBadRequest, app.Response{
+			Status: app.StatusFail, Msg: "Invalid credentials", Error: err,
+		})
+	}
+
+	app.SaveSessionValue(w, r, "user_id", user.ID)
+
+	return app.WriteJson(w, http.StatusCreated, app.Response{
+		Status: app.StatusSuccess, Msg: "User signed in successfully", Data: user,
 	})
 }

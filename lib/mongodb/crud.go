@@ -10,7 +10,7 @@ import (
 )
 
 type MongoCrud[T any] struct {
-	coll *mongo.Collection
+	Coll *mongo.Collection
 }
 
 func NewMongoCrud[T any](collection *mongo.Collection) MongoCrud[T] {
@@ -18,7 +18,7 @@ func NewMongoCrud[T any](collection *mongo.Collection) MongoCrud[T] {
 }
 
 func (m *MongoCrud[T]) FindAll() ([]T, error) {
-	cursor, err := m.coll.Find(context.Background(), bson.D{})
+	cursor, err := m.Coll.Find(context.Background(), bson.D{})
 
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (m *MongoCrud[T]) FindAll() ([]T, error) {
 }
 
 func (m *MongoCrud[T]) FindByID(id uuid.UUID) (T, error) {
-	result := m.coll.FindOne(
+	result := m.Coll.FindOne(
 		context.Background(), bson.D{{Key: "id", Value: id}},
 	)
 
@@ -52,7 +52,7 @@ func (m *MongoCrud[T]) FindByID(id uuid.UUID) (T, error) {
 }
 
 func (m *MongoCrud[T]) Save(doc *T) error {
-	res, err := m.coll.InsertOne(context.TODO(), doc)
+	res, err := m.Coll.InsertOne(context.TODO(), doc)
 
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func (m *MongoCrud[T]) Save(doc *T) error {
 }
 
 func (m *MongoCrud[T]) Update(id uuid.UUID, doc *T) error {
-	_, err := m.coll.UpdateOne(
+	_, err := m.Coll.UpdateOne(
 		context.Background(), bson.D{{Key: "id", Value: id}}, bson.D{{Key: "$set", Value: doc}},
 	)
 
@@ -78,7 +78,7 @@ func (m *MongoCrud[T]) Update(id uuid.UUID, doc *T) error {
 }
 
 func (m *MongoCrud[T]) Remove(id uuid.UUID) error {
-	res, err := m.coll.DeleteOne(
+	res, err := m.Coll.DeleteOne(
 		context.Background(), bson.D{{Key: "id", Value: id}},
 	)
 

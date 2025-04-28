@@ -27,24 +27,20 @@ func Validate(dto any) error {
 }
 
 func getErrorMsg(fe validator.FieldError) string {
-	switch fe.Tag() {
-	case "required":
-		return "This field is required"
-	case "lte":
-		return "Should be less than " + fe.Param()
-	case "gte":
-		return "Should be greater than " + fe.Param()
-	case "max":
-		return "Should be less than " + fe.Param() + " characters"
-	case "min":
-		return "Should be greater than " + fe.Param() + " characters"
-	case "email":
-		return "Invalid email"
-	case "oneof":
-		return fmt.Sprintf("Yo can only chose between: [%s]", fe.Param())
-	case "url":
-		return "Invalid url"
-	default:
-		return fmt.Sprintf("Unknown error (%s)", fe.Tag())
+	messages := map[string]string{
+		"required": "This field is required",
+		"lte":      "Should be less than " + fe.Param(),
+		"gte":      "Should be greater than " + fe.Param(),
+		"max":      "Should be less than " + fe.Param() + " characters",
+		"min":      "Should be greater than " + fe.Param() + " characters",
+		"email":    "Invalid email",
+		"oneof":    "Yo can only chose between: [" + fe.Param() + "]",
+		"url":      "Invalid url",
 	}
+
+	if msg, ok := messages[fe.Tag()]; ok {
+		return msg
+	}
+
+	return fmt.Sprintf("Unknown error (%s)", fe.Tag())
 }
