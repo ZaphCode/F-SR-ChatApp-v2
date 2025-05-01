@@ -23,17 +23,10 @@ func NewAuthHandler(userService domain.UserService) *AuthHandler {
 // Routes
 
 func (h *AuthHandler) SetRoutes(mux *http.ServeMux) {
-	mux.Handle("GET /signup", app.HandleFunc(h.SignUpView))
 	mux.Handle("POST /api/auth/signup", app.HandleFunc(h.SignUp))
 	mux.Handle("POST /api/auth/signin", app.HandleFunc(h.SignIn))
 	mux.Handle("POST /api/auth/signout", app.HandleFunc(h.SignOut))
 	mux.Handle("GET /api/auth/user", app.HandleFunc(h.GetAuthUser).WithMiddlewares(middlewares.Auth))
-}
-
-// Handlers
-
-func (h *AuthHandler) SignUpView(w http.ResponseWriter, r *http.Request) error {
-	return app.Render(w, "sign-up", nil)
 }
 
 //! SignUp Handler: /api/auth/signup
@@ -91,7 +84,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	return app.WriteJson(w, http.StatusCreated, app.Response{
+	return app.WriteJson(w, http.StatusOK, app.Response{
 		Status: app.StatusSuccess, Msg: "User signed in successfully", Data: user,
 	})
 }

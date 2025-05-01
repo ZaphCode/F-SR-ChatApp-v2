@@ -11,7 +11,6 @@ type User struct {
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
-	Verified  bool      `json:"verified"`
 	ImageUrl  string    `json:"image_url"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -21,7 +20,7 @@ type UserService interface {
 	Authenticate(email, password string) (User, error)
 	GetByID(id uuid.UUID) (User, error)
 	GetAll() ([]User, error)
-	Update(id uuid.UUID, user User) error
+	UpdateProfileImg(id uuid.UUID, img_url string) error
 	Delete(id uuid.UUID) error
 }
 

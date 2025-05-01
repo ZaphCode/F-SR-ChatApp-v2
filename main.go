@@ -8,11 +8,10 @@ import (
 	"github.com/ZaphCode/F-SR-ChatApp/lib/mongodb"
 	"github.com/ZaphCode/F-SR-ChatApp/repositories"
 	"github.com/ZaphCode/F-SR-ChatApp/services"
-	"github.com/ZaphCode/F-SR-ChatApp/utils"
 )
 
 func main() {
-	db := mongodb.MustGetMongoClient(utils.MONGO_DEV_URI).Database("fsr-sandbox")
+	db := mongodb.MustGetMongoClient("mongodb://localhost:27017").Database("fsr-sandbox")
 
 	// * Repositories
 	userRepository := repositories.NewMongoDBUserRepository(db.Collection("users"))
