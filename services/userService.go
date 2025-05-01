@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
@@ -23,10 +25,16 @@ func (s *userService) Create(username, email, password string) (domain.User, err
 		return domain.User{}, err
 	}
 
+	existingUser, err := s.userRepo.FindByEmail(email)
+
+	if err == nil && existingUser.ID != uuid.Nil {
+		return domain.User{}, errors.New("the email is already in use")
+	}
+
 	hashPass, err := utils.HashPassword(password)
 
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	user := domain.User{
@@ -39,14 +47,14 @@ func (s *userService) Create(username, email, password string) (domain.User, err
 	}
 
 	if err := s.userRepo.Save(&user); err != nil {
-		return domain.User{}, err
+		return domain.User{}, fmt.Errorf("failed to save user: %w", err)
 	}
 
 	return user, nil
 }
 
 func (s *userService) GetByID(id uuid.UUID) (domain.User, error) {
-	return domain.User{}, nil
+	return s.userRepo.FindByID(id)
 }
 
 func (s *userService) Authenticate(email, password string) (domain.User, error) {

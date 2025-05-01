@@ -7,13 +7,13 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID
-	Username  string
-	Email     string
-	Password  string
-	Verified  bool
-	ImageUrl  string
-	CreatedAt time.Time
+	ID        uuid.UUID `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Password  string    `json:"-"`
+	Verified  bool      `json:"verified"`
+	ImageUrl  string    `json:"image_url"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type UserService interface {

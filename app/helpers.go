@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -39,7 +40,15 @@ func ReadAndValidateJson[T any](r *http.Request) (T, error) {
 	return data, nil
 }
 
-var store = sessions.NewCookieStore([]byte(utils.APP_SESSION_KEY))
+var store *sessions.CookieStore
+
+func InitSessionStore() {
+	store = sessions.NewCookieStore([]byte(utils.APP_SESSION_KEY))
+	store.Options.HttpOnly = true
+	store.Options.Secure = false
+	store.Options.SameSite = http.SameSiteDefaultMode
+	store.Options.MaxAge = 3600 * 24 * 7 // 1 week
+}
 
 func SaveSessionValue(w http.ResponseWriter, r *http.Request, key string, value any) error {
 	session, err := store.Get(r, utils.APP_SESSION_COOKIE)
@@ -50,23 +59,45 @@ func SaveSessionValue(w http.ResponseWriter, r *http.Request, key string, value 
 
 	session.Values[key] = value
 
+	log.Printf("Session values (after saved): %#v\n", session.Values)
+
 	return session.Save(r, w)
 }
 
-func GetSessionValue(r *http.Request, key string) (any, error) {
+func GetSessionValue[T any](r *http.Request, key string) (T, error) {
 	session, err := store.Get(r, utils.APP_SESSION_COOKIE)
 
 	if err != nil {
-		return nil, err
+		return *new(T), err
 	}
+
+	log.Printf("Session values: %#v\n", session.Values)
 
 	val, exists := session.Values[key]
 
 	if !exists {
-		return nil, fmt.Errorf("session key not found")
+		return *new(T), nil
 	}
 
-	return val, nil
+	typedVal, ok := val.(T)
+
+	if !ok {
+		return *new(T), fmt.Errorf("invalid type assertion for key %s", key)
+	}
+
+	return typedVal, nil
+}
+
+func DeleteSessionValue(w http.ResponseWriter, r *http.Request, key string) error {
+	session, err := store.Get(r, utils.APP_SESSION_COOKIE)
+
+	if err != nil {
+		return err
+	}
+
+	delete(session.Values, key)
+
+	return session.Save(r, w)
 }
 
 func Render(w http.ResponseWriter, tmplName string, data any) error {
@@ -95,6 +126,15 @@ func (h HandleFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type Middleware func(HandleFunc) HandleFunc
+
+func (h HandleFunc) WithMiddlewares(middlewares ...Middleware) HandleFunc {
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		h = middlewares[i](h)
+	}
+	return h
+}
+
 // Json map helper
 
 type JM map[string]any
@@ -114,3 +154,9 @@ type Response struct {
 	Data   any       `json:"data,omitempty"`
 	Error  any       `json:"error,omitempty"`
 }
+
+type ContextKey string
+
+const (
+	UserIDCtxKey ContextKey = "USER_ID"
+)

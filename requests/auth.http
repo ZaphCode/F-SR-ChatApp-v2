@@ -1,0 +1,18 @@
+# Api url variable
+@url = http://localhost:8080/api/auth
+
+### Get auth user info
+
+GET {{url}}/user
+
+###  Sign up
+
+POST {{url}}/signup
+
+Content-Type:  application/json
+
+{
+  "username": "A",
+  "email": "email@test.com",
+  "password": "password123"
+}

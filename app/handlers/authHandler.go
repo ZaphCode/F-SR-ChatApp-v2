@@ -5,7 +5,9 @@ import (
 
 	"github.com/ZaphCode/F-SR-ChatApp/app"
 	"github.com/ZaphCode/F-SR-ChatApp/app/dtos"
+	"github.com/ZaphCode/F-SR-ChatApp/app/middlewares"
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
+	"github.com/google/uuid"
 )
 
 type AuthHandler struct {
@@ -22,6 +24,10 @@ func NewAuthHandler(userService domain.UserService) *AuthHandler {
 
 func (h *AuthHandler) SetRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /signup", app.HandleFunc(h.SignUpView))
+	mux.Handle("POST /api/auth/signup", app.HandleFunc(h.SignUp))
+	mux.Handle("POST /api/auth/signin", app.HandleFunc(h.SignIn))
+	mux.Handle("POST /api/auth/signout", app.HandleFunc(h.SignOut))
+	mux.Handle("GET /api/auth/user", app.HandleFunc(h.GetAuthUser).WithMiddlewares(middlewares.Auth))
 }
 
 // Handlers
@@ -29,6 +35,8 @@ func (h *AuthHandler) SetRoutes(mux *http.ServeMux) {
 func (h *AuthHandler) SignUpView(w http.ResponseWriter, r *http.Request) error {
 	return app.Render(w, "sign-up", nil)
 }
+
+//! SignUp Handler: /api/auth/signup
 
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 	newUser, err := app.ReadAndValidateJson[dtos.SignUpDto](r)
@@ -43,16 +51,22 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 
 	if err != nil {
 		return app.WriteJson(w, http.StatusBadRequest, app.Response{
-			Status: app.StatusFail, Msg: "Something went wrong while creating user", Error: err,
+			Status: app.StatusFail, Msg: "Error while creating user", Error: err.Error(),
 		})
 	}
 
-	app.SaveSessionValue(w, r, "user_id", user.ID)
+	if err := app.SaveSessionValue(w, r, "user_id", user.ID.String()); err != nil {
+		return app.WriteJson(w, http.StatusInternalServerError, app.Response{
+			Status: app.StatusFail, Msg: "Error while saving session", Error: err.Error(),
+		})
+	}
 
 	return app.WriteJson(w, http.StatusCreated, app.Response{
 		Status: app.StatusSuccess, Msg: "User created successfully", Data: user,
 	})
 }
+
+//! SignIn Handler: /api/auth/signin
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 	credentials, err := app.ReadAndValidateJson[dtos.SignInDto](r)
@@ -71,9 +85,45 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	app.SaveSessionValue(w, r, "user_id", user.ID)
+	if err := app.SaveSessionValue(w, r, "user_id", user.ID.String()); err != nil {
+		return app.WriteJson(w, http.StatusInternalServerError, app.Response{
+			Status: app.StatusFail, Msg: "Error while saving session", Error: err.Error(),
+		})
+	}
 
 	return app.WriteJson(w, http.StatusCreated, app.Response{
 		Status: app.StatusSuccess, Msg: "User signed in successfully", Data: user,
+	})
+}
+
+//! SignOut Handler: /api/auth/signout
+
+func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) error {
+	if err := app.DeleteSessionValue(w, r, "user_id"); err != nil {
+		return app.WriteJson(w, http.StatusInternalServerError, app.Response{
+			Status: app.StatusFail, Msg: "Error while signing out", Error: err.Error(),
+		})
+	}
+
+	return app.WriteJson(w, http.StatusOK, app.Response{
+		Status: app.StatusSuccess, Msg: "User signed out successfully",
+	})
+}
+
+//! GetAuthUser Handler: /api/auth/user
+
+func (h *AuthHandler) GetAuthUser(w http.ResponseWriter, r *http.Request) error {
+	userID := r.Context().Value(app.UserIDCtxKey).(uuid.UUID)
+
+	user, err := h.userService.GetByID(userID)
+
+	if err != nil {
+		return app.WriteJson(w, http.StatusInternalServerError, app.Response{
+			Status: app.StatusFail, Msg: "Something went wrong", Error: err,
+		})
+	}
+
+	return app.WriteJson(w, http.StatusOK, app.Response{
+		Status: app.StatusSuccess, Msg: "User retrieved successfully", Data: user,
 	})
 }
