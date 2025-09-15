@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 
@@ -59,8 +58,6 @@ func SaveSessionValue(w http.ResponseWriter, r *http.Request, key string, value 
 
 	session.Values[key] = value
 
-	log.Printf("Session values (after saved): %#v\n", session.Values)
-
 	return session.Save(r, w)
 }
 
@@ -70,8 +67,6 @@ func GetSessionValue[T any](r *http.Request, key string) (T, error) {
 	if err != nil {
 		return *new(T), err
 	}
-
-	log.Printf("Session values: %#v\n", session.Values)
 
 	val, exists := session.Values[key]
 

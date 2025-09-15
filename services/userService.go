@@ -42,7 +42,6 @@ func (s *userService) Create(username, email, password string) (domain.User, err
 		Username:  username,
 		Email:     email,
 		Password:  hashPass,
-		Verified:  false,
 		CreatedAt: time.Now(),
 	}
 

@@ -7,10 +7,10 @@ import (
 )
 
 type Conversation struct {
-	ID        uuid.UUID
-	UserID_A  uuid.UUID
-	UserID_B  uuid.UUID
-	CreatedAt time.Time
+	ID        uuid.UUID `json:"id"`
+	UserID_A  uuid.UUID `json:"user_id_a"`
+	UserID_B  uuid.UUID `json:"user_id_b"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type ConversationService interface {

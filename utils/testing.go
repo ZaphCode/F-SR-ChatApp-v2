@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -14,12 +15,17 @@ type TestAppHandlerCase[T any] struct {
 	ExpectedStatus int
 }
 
-func RunTestCases[T any](t *testing.T, mux *http.ServeMux, method, url string, testCases []TestAppHandlerCase[T]) {
+func RunTestCases[T any](
+	t *testing.T,
+	mux *http.ServeMux,
+	method, endpoint string,
+	testCases []TestAppHandlerCase[T],
+) {
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
 			b, _ := json.Marshal(tc.Body)
 
-			req, _ := http.NewRequest(method, url, strings.NewReader(string(b)))
+			req, _ := http.NewRequest(method, endpoint, strings.NewReader(string(b)))
 
 			req.Header.Set("Content-Type", "application/json")
 
@@ -31,8 +37,16 @@ func RunTestCases[T any](t *testing.T, mux *http.ServeMux, method, url string, t
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tc.ExpectedStatus)
 			}
 
-			// print body blue colored
-			t.Logf("\033[34m\n--- Response: %s\033[0m", rr.Body.String())
+			PrettyPrint("Response " + getResponseJson(rr.Body.Bytes()))
 		})
 	}
+}
+
+func getResponseJson(input []byte) string {
+	var out bytes.Buffer
+	err := json.Indent(&out, input, "", "  ")
+	if err != nil {
+		return string(input)
+	}
+	return out.String()
 }

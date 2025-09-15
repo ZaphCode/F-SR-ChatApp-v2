@@ -94,6 +94,5 @@ func TestSuccessfulLoginFlow(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	t.Logf("\033[34mResponse: %s\033[0m", rr.Body.String())
-
+	utils.PrettyPrint("Response: " + rr.Body.String())
 }

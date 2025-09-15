@@ -1,5 +1,4 @@
-# Variable to frontend url
-FRONTEND_URL := http://localhost:8080/signup
+
 
 run_dev:
 	air

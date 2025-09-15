@@ -7,13 +7,13 @@ import (
 )
 
 type Message struct {
-	ID             uuid.UUID
-	ConversationID uuid.UUID
-	SenderID       uuid.UUID
-	Content        string
-	File           string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	ID             uuid.UUID `json:"id"`
+	ConversationID uuid.UUID `json:"conversation_id"`
+	SenderID       uuid.UUID `json:"sender_id"`
+	Content        string    `json:"content"`
+	File           string    `json:"file"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type MessageService interface {

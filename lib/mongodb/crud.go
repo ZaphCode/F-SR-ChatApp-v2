@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ZaphCode/F-SR-ChatApp/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -18,7 +19,7 @@ func NewMongoCrud[T any](collection *mongo.Collection) MongoCrud[T] {
 }
 
 func (m *MongoCrud[T]) FindAll() ([]T, error) {
-	cursor, err := m.Coll.Find(context.Background(), bson.D{})
+	cursor, err := m.Coll.Find(context.TODO(), bson.D{})
 
 	if err != nil {
 		return nil, err
@@ -26,7 +27,9 @@ func (m *MongoCrud[T]) FindAll() ([]T, error) {
 
 	var docs []T
 
-	if err = cursor.All(context.TODO(), &docs); err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+	err = cursor.All(context.TODO(), &docs)
+
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, err
 	}
 
@@ -35,13 +38,17 @@ func (m *MongoCrud[T]) FindAll() ([]T, error) {
 
 func (m *MongoCrud[T]) FindByID(id uuid.UUID) (T, error) {
 	result := m.Coll.FindOne(
-		context.Background(), bson.D{{Key: "id", Value: id}},
+		context.TODO(), bson.D{{Key: "id", Value: id}},
 	)
 
 	var doc T
 
 	if err := result.Err(); err != nil {
-		return doc, err
+		if !errors.Is(err, mongo.ErrNoDocuments) {
+			return doc, err
+		}
+
+		return doc, utils.ErrNotFound
 	}
 
 	if err := result.Decode(&doc); err != nil {
@@ -66,12 +73,16 @@ func (m *MongoCrud[T]) Save(doc *T) error {
 }
 
 func (m *MongoCrud[T]) Update(id uuid.UUID, doc *T) error {
-	_, err := m.Coll.UpdateOne(
-		context.Background(), bson.D{{Key: "id", Value: id}}, bson.D{{Key: "$set", Value: doc}},
+	res, err := m.Coll.UpdateOne(
+		context.TODO(), bson.D{{Key: "id", Value: id}}, bson.D{{Key: "$set", Value: doc}},
 	)
 
 	if err != nil {
 		return err
+	}
+
+	if res.MatchedCount == 0 {
+		return utils.ErrNotFound
 	}
 
 	return nil
@@ -79,7 +90,7 @@ func (m *MongoCrud[T]) Update(id uuid.UUID, doc *T) error {
 
 func (m *MongoCrud[T]) Remove(id uuid.UUID) error {
 	res, err := m.Coll.DeleteOne(
-		context.Background(), bson.D{{Key: "id", Value: id}},
+		context.TODO(), bson.D{{Key: "id", Value: id}},
 	)
 
 	if err != nil {
@@ -87,7 +98,7 @@ func (m *MongoCrud[T]) Remove(id uuid.UUID) error {
 	}
 
 	if res.DeletedCount == 0 {
-		return errors.New("resource not found")
+		return utils.ErrNotFound
 	}
 
 	return nil

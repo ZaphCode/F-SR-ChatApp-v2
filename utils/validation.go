@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -18,7 +19,7 @@ func Validate(dto any) error {
 
 	if err := validate.Struct(dto); err != nil {
 		for _, fe := range err.(validator.ValidationErrors) {
-			errors[fe.Field()] = getErrorMsg(fe)
+			errors[strings.ToLower(fe.Field())] = getErrorMsg(fe)
 		}
 		return errors
 	}

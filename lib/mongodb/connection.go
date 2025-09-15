@@ -10,32 +10,31 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-type result struct {
-	Client *mongo.Client
-	Err    error
-}
-
 func GetMongoClient(uri string) (*mongo.Client, error) {
-	resultChan := make(chan result)
+	clientCh := make(chan *mongo.Client)
+	errorCh := make(chan error)
 
 	go func() {
 		client, err := mongo.Connect(options.Client().ApplyURI(uri))
 
 		if err != nil {
-			resultChan <- result{nil, err}
+			errorCh <- err
 			return
 		}
 
 		if err := client.Ping(context.TODO(), nil); err != nil {
-			resultChan <- result{nil, err}
+			errorCh <- err
 			return
 		}
-		resultChan <- result{client, nil}
+
+		clientCh <- client
 	}()
 
 	select {
-	case res := <-resultChan:
-		return res.Client, res.Err
+	case client := <-clientCh:
+		return client, nil
+	case err := <-errorCh:
+		return nil, err
 	case <-time.After(3 * time.Second):
 		return nil, errors.New("timeout: conexión a MongoDB tardó demasiado")
 	}
