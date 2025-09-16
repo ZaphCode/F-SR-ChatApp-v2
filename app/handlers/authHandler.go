@@ -11,12 +11,12 @@ import (
 )
 
 type AuthHandler struct {
-	userService domain.UserService
+	us domain.UserService
 }
 
 func NewAuthHandler(userService domain.UserService) *AuthHandler {
 	return &AuthHandler{
-		userService: userService,
+		us: userService,
 	}
 }
 
@@ -29,7 +29,7 @@ func (h *AuthHandler) SetRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/auth/user", app.HandleFunc(h.GetAuthUser).WithMiddlewares(middlewares.Auth))
 }
 
-//! SignUp Handler: /api/auth/signup
+// Handlers
 
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 	newUser, err := app.ReadAndValidateJson[dtos.SignUpDto](r)
@@ -40,7 +40,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	user, err := h.userService.Create(newUser.Username, newUser.Email, newUser.Password)
+	user, err := h.us.Create(newUser.Username, newUser.Email, newUser.Password)
 
 	if err != nil {
 		return app.WriteJson(w, http.StatusBadRequest, app.Response{
@@ -59,8 +59,6 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-//! SignIn Handler: /api/auth/signin
-
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 	credentials, err := app.ReadAndValidateJson[dtos.SignInDto](r)
 
@@ -70,7 +68,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	user, err := h.userService.Authenticate(credentials.Email, credentials.Password)
+	user, err := h.us.Authenticate(credentials.Email, credentials.Password)
 
 	if err != nil {
 		return app.WriteJson(w, http.StatusBadRequest, app.Response{
@@ -89,8 +87,6 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-//! SignOut Handler: /api/auth/signout
-
 func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) error {
 	if err := app.DeleteSessionValue(w, r, "user_id"); err != nil {
 		return app.WriteJson(w, http.StatusInternalServerError, app.Response{
@@ -103,12 +99,10 @@ func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-//! GetAuthUser Handler: /api/auth/user
-
 func (h *AuthHandler) GetAuthUser(w http.ResponseWriter, r *http.Request) error {
 	userID := r.Context().Value(app.UserIDCtxKey).(uuid.UUID)
 
-	user, err := h.userService.GetByID(userID)
+	user, err := h.us.GetByID(userID)
 
 	if err != nil {
 		return app.WriteJson(w, http.StatusInternalServerError, app.Response{

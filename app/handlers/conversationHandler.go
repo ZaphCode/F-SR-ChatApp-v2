@@ -3,21 +3,34 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/ZaphCode/F-SR-ChatApp/app"
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
 )
 
 type ConversationHandler struct {
-	userService domain.UserService
+	us domain.UserService
+	cs domain.ConversationService
 }
 
-func NewConversationHandler() *ConversationHandler {
-	return &ConversationHandler{}
+func NewConversationHandler(
+	userService domain.UserService,
+	conversationService domain.ConversationService,
+) *ConversationHandler {
+	return &ConversationHandler{
+		us: userService,
+		cs: conversationService,
+	}
 }
+
+// Routes
 
 func (h *ConversationHandler) SetRoutes(mux *http.ServeMux) {
-
+	mux.Handle("GET /api/conversations", app.HandleFunc(h.GetConversations))
 }
 
-func (h *ConversationHandler) GetConversations(w http.ResponseWriter, r *http.Request) {
+// Handlers
+
+func (h *ConversationHandler) GetConversations(w http.ResponseWriter, r *http.Request) error {
 	// Implementation for getting conversations
+	return nil
 }
