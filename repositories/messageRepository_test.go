@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
 	"github.com/ZaphCode/F-SR-ChatApp/utils"
-	"github.com/google/uuid"
 )
 
 func TestMongoDBMessageRepository_Save(t *testing.T) {
@@ -69,7 +70,7 @@ func TestMongoDBMessageRepository_SaveAndUpdate(t *testing.T) {
 
 	msg.Content = "Updated Content"
 	msg.Reaction = "👍"
-	msg.UpdatedAt = time.Now()
+	msg.EditedAt = time.Now()
 
 	if err := messageRepo.Update(msg.ID, &msg); err != nil {
 		t.Fatalf("Failed to update message: %v", err)
