@@ -8,8 +8,8 @@ import (
 
 type Conversation struct {
 	ID        uuid.UUID `json:"id"`
-	UserID_A  uuid.UUID `json:"user_id_a"`
-	UserID_B  uuid.UUID `json:"user_id_b"`
+	UserID_A  uuid.UUID `json:"user_id_a"` // FK
+	UserID_B  uuid.UUID `json:"user_id_b"` // FK
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -21,5 +21,5 @@ type ConversationService interface {
 type ConversationRepository interface {
 	Save(conv *Conversation) error
 	FindFrom(userA, userB uuid.UUID) (Conversation, error)
-	FindAllFrom(user_id uuid.UUID) ([]Conversation, error)
+	FindAllFrom(user uuid.UUID) ([]Conversation, error)
 }

@@ -8,11 +8,10 @@ GET {{url}}/user
 ###  Sign up
 
 POST {{url}}/signup
-
 Content-Type:  application/json
 
 {
-  "username": "A",
-  "email": "email@test.com",
+  "username": "Hola mundo", 
+  "email": "hola@mundo.com",
   "password": "password123"
 }

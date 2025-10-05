@@ -26,11 +26,16 @@ func NewConversationHandler(
 
 func (h *ConversationHandler) SetRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/conversations", app.HandleFunc(h.GetConversations))
+	mux.Handle("POST /api/conversations", app.HandleFunc(h.CreateConversation))
 }
 
 // Handlers
 
 func (h *ConversationHandler) GetConversations(w http.ResponseWriter, r *http.Request) error {
 	// Implementation for getting conversations
+	return nil
+}
+
+func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }

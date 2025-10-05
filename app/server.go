@@ -58,9 +58,11 @@ func (a *App) RegisterHandlers(handlers ...Handler) {
 
 func (a *App) Run(ctx context.Context) {
 	InitSessionStore()
+
 	a.setGracefulShutdown(ctx)
 
 	log.Printf("Serving on http://localhost%s", a.Addr)
+
 	if err := a.Server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

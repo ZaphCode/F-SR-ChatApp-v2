@@ -1,35 +1,12 @@
 package repositories
 
 import (
-	"context"
 	"testing"
 	"time"
 
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
-	"github.com/ZaphCode/F-SR-ChatApp/lib/mongodb"
-	"github.com/ZaphCode/F-SR-ChatApp/utils"
 	"github.com/google/uuid"
 )
-
-var conversationRepo domain.ConversationRepository
-var userRepo domain.UserRepository
-
-func TestMain(m *testing.M) {
-	client := mongodb.MustGetMongoClient(utils.MONGO_DEV_URI)
-
-	convColl := client.Database("test-db").Collection("conversations")
-	userColl := client.Database("test-db").Collection("users")
-
-	conversationRepo = NewMongoDBConversationRepository(convColl)
-	userRepo = NewMongoDBUserRepository(userColl)
-
-	m.Run()
-
-	convColl.Drop(context.TODO())
-	userColl.Drop(context.TODO())
-
-	client.Disconnect(context.TODO())
-}
 
 func TestMongoDBConversationRepository_Save(t *testing.T) {
 	conv := &domain.Conversation{
@@ -125,6 +102,7 @@ func TestMongoDBConversationRepository_SaveAndFindAll(t *testing.T) {
 	}
 }
 
+// Sample UUIDs for testing
 // d8900901-5efc-4b5d-b7cb-a9b8910bc3d7 user a 1
 // 102b6459-e829-429f-8357-2f8b8bb60367 user b 1
 // 7f973f86-8900-49eb-8ea9-a5b4be0aa55c user a 2

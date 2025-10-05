@@ -48,10 +48,10 @@ func (r *mongoDBConversationRepo) FindFrom(userA, userB uuid.UUID) (domain.Conve
 	return doc, nil
 }
 
-func (r *mongoDBConversationRepo) FindAllFrom(user_id uuid.UUID) ([]domain.Conversation, error) {
+func (r *mongoDBConversationRepo) FindAllFrom(userID uuid.UUID) ([]domain.Conversation, error) {
 	filter := bson.D{{Key: "$or", Value: bson.A{
-		bson.D{{Key: "userid_a", Value: user_id}},
-		bson.D{{Key: "userid_b", Value: user_id}},
+		bson.D{{Key: "userid_a", Value: userID}},
+		bson.D{{Key: "userid_b", Value: userID}},
 	}}}
 
 	result, err := r.Coll.Find(context.Background(), filter)

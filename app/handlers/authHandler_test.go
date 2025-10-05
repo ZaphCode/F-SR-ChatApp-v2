@@ -6,21 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ZaphCode/F-SR-ChatApp/app"
 	"github.com/ZaphCode/F-SR-ChatApp/app/dtos"
-	"github.com/ZaphCode/F-SR-ChatApp/services"
 	"github.com/ZaphCode/F-SR-ChatApp/utils"
 )
-
-var mux *http.ServeMux
-
-func TestMain(m *testing.M) {
-	app.InitSessionStore()
-	mux = http.NewServeMux()
-	NewAuthHandler(services.NewUserServiceMock()).SetRoutes(mux)
-
-	m.Run()
-}
 
 func TestSignUpCases(t *testing.T) {
 	tests := []utils.TestAppHandlerCase[dtos.SignUpDto]{
@@ -52,7 +40,7 @@ func TestSignUpCases(t *testing.T) {
 		},
 	}
 
-	utils.RunTestCases(t, mux, http.MethodPost, "/api/auth/signup", tests)
+	utils.RunTestCases(t, testingMux, http.MethodPost, "/api/auth/signup", tests)
 }
 
 func TestSuccessfulLoginFlow(t *testing.T) {
@@ -68,7 +56,7 @@ func TestSuccessfulLoginFlow(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	mux.ServeHTTP(rr, req)
+	testingMux.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -88,7 +76,7 @@ func TestSuccessfulLoginFlow(t *testing.T) {
 
 	rr = httptest.NewRecorder()
 
-	mux.ServeHTTP(rr, req)
+	testingMux.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
