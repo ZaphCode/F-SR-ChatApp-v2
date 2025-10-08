@@ -10,7 +10,7 @@ import (
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
 )
 
-//* Users Mock Data
+//* Users Mock
 
 var UserA domain.User = domain.User{
 	ID:        uuid.MustParse("11111111-1111-1111-1111-111111111111"),
@@ -37,6 +37,7 @@ type userRepositoryMock struct {
 
 func NewUserRepository() domain.UserRepository {
 	return &userRepositoryMock{
+		mu: sync.RWMutex{},
 		users: map[uuid.UUID]domain.User{
 			UserA.ID: UserA,
 			UserB.ID: UserB,
