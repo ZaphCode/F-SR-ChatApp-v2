@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 	client := MustGetMongoClient(utils.MONGO_DEV_URI)
 	db := client.Database(utils.MONGO_DEV_DB)
 
-	todosColl := client.Database("test-db").Collection("todos")
+	todosColl := db.Collection("todos")
 	convColl := db.Collection(utils.MONGO_CONVERSATION_COL)
 	userColl := db.Collection(utils.MONGO_USER_COL)
 	msgColl := db.Collection(utils.MONGO_MESSAGE_COL)
@@ -43,6 +43,7 @@ func TestMain(m *testing.M) {
 
 	utils.PrettyPrint("Tearing down test database...")
 
+	todosColl.Drop(context.TODO())
 	convColl.Drop(context.TODO())
 	msgColl.Drop(context.TODO())
 	userColl.Drop(context.TODO())

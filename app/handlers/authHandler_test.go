@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/ZaphCode/F-SR-ChatApp/app/dtos"
 	"github.com/ZaphCode/F-SR-ChatApp/utils"
+	"github.com/ZaphCode/F-SR-ChatApp/utils/mocks"
 )
 
 func TestSignUpCases(t *testing.T) {
@@ -44,7 +46,7 @@ func TestSignUpCases(t *testing.T) {
 }
 
 func TestSuccessfulLoginFlow(t *testing.T) {
-	body := `{"email":"test@user.com","password":"testpassword"}`
+	body := fmt.Sprintf(`{"email": "%s","password": "%s"}`, mocks.UserA.Email, "password123")
 
 	req, err := http.NewRequest("POST", "/api/auth/signin", strings.NewReader(body))
 
@@ -62,7 +64,7 @@ func TestSuccessfulLoginFlow(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	t.Logf("Response: %s", rr.Body.String())
+	utils.PrettyPrint("Response: " + rr.Body.String())
 
 	req, err = http.NewRequest("GET", "/api/auth/user", nil)
 

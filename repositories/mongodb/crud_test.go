@@ -52,8 +52,8 @@ func TestMongoCrud_FindAll(t *testing.T) {
 		t.Fatalf("Failed to find todos: %v", err)
 	}
 
-	if len(todos) != 2 {
-		t.Fatalf("Expected at least two todos, got %d", len(todos))
+	if len(todos) < 2 {
+		t.Errorf("Expected at least two todos, got %d", len(todos))
 	}
 
 	utils.PrettyPrint(todos)
