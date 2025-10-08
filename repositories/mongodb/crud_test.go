@@ -1,36 +1,14 @@
 package mongodb
 
 import (
-	"context"
 	"errors"
 	"testing"
 	"time"
 
-	"github.com/ZaphCode/F-SR-ChatApp/utils"
 	"github.com/google/uuid"
+
+	"github.com/ZaphCode/F-SR-ChatApp/utils"
 )
-
-// Example struct to be used with MongoCrud
-type toDo struct {
-	ID          uuid.UUID `json:"id"`
-	Description string    `json:"description"`
-	Completed   bool      `json:"completed"`
-	CreateAt    time.Time `json:"createAt"`
-}
-
-var mongoCrud MongoCrud[toDo]
-
-func TestMain(m *testing.M) {
-	client := MustGetMongoClient(utils.MONGO_DEV_URI)
-	coll := client.Database("test-db").Collection("todos")
-
-	mongoCrud = NewMongoCrud[toDo](coll)
-
-	m.Run()
-
-	coll.Drop(context.TODO())
-	client.Disconnect(context.TODO())
-}
 
 func TestMongoCrud_Save(t *testing.T) {
 	todo := toDo{

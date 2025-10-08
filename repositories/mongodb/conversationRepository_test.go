@@ -1,11 +1,12 @@
-package repositories
+package mongodb
 
 import (
 	"testing"
 	"time"
 
-	"github.com/ZaphCode/F-SR-ChatApp/domain"
 	"github.com/google/uuid"
+
+	"github.com/ZaphCode/F-SR-ChatApp/domain"
 )
 
 func TestMongoDBConversationRepository_Save(t *testing.T) {

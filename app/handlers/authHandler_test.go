@@ -11,7 +11,7 @@ import (
 )
 
 func TestSignUpCases(t *testing.T) {
-	tests := []utils.TestAppHandlerCase[dtos.SignUpDto]{
+	tests := []utils.AppHandlerTestCase[dtos.SignUpDto]{
 		{
 			Name: "Valid SignUp",
 			Body: dtos.SignUpDto{
@@ -40,7 +40,7 @@ func TestSignUpCases(t *testing.T) {
 		},
 	}
 
-	utils.RunTestCases(t, testingMux, http.MethodPost, "/api/auth/signup", tests)
+	utils.RunAppHandlerTestCases(t, testingMux, http.MethodPost, "/api/auth/signup", tests)
 }
 
 func TestSuccessfulLoginFlow(t *testing.T) {

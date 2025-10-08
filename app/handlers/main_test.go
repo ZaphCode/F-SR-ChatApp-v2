@@ -6,6 +6,7 @@ import (
 
 	"github.com/ZaphCode/F-SR-ChatApp/app"
 	"github.com/ZaphCode/F-SR-ChatApp/services"
+	"github.com/ZaphCode/F-SR-ChatApp/utils/mocks"
 )
 
 var testingMux *http.ServeMux
@@ -13,7 +14,14 @@ var testingMux *http.ServeMux
 func TestMain(m *testing.M) {
 	app.InitSessionStore()
 	testingMux = http.NewServeMux()
-	NewAuthHandler(services.NewUserServiceMock()).SetRoutes(testingMux)
+
+	// Repositories
+	userRepository := mocks.NewUserRepository()
+
+	// Services
+	userService := services.NewUserService(userRepository)
+
+	NewAuthHandler(userService).SetRoutes(testingMux)
 
 	m.Run()
 }

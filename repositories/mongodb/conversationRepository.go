@@ -1,23 +1,22 @@
-package repositories
+package mongodb
 
 import (
 	"context"
 
-	"github.com/ZaphCode/F-SR-ChatApp/domain"
-	"github.com/ZaphCode/F-SR-ChatApp/lib/mongodb"
 	"github.com/google/uuid"
-
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+
+	"github.com/ZaphCode/F-SR-ChatApp/domain"
 )
 
 type mongoDBConversationRepo struct {
-	mongodb.MongoCrud[domain.Conversation]
+	mongoBaseCRUD[domain.Conversation]
 }
 
-func NewMongoDBConversationRepository(coll *mongo.Collection) domain.ConversationRepository {
+func NewConversationRepository(coll *mongo.Collection) domain.ConversationRepository {
 	return &mongoDBConversationRepo{
-		mongodb.NewMongoCrud[domain.Conversation](coll),
+		newMongoBaseCRUD[domain.Conversation](coll),
 	}
 }
 

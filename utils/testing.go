@@ -9,17 +9,24 @@ import (
 	"testing"
 )
 
-type TestAppHandlerCase[T any] struct {
+type TestCase[T, R any] struct {
+	Name         string
+	Input        T
+	ExpectError  bool
+	HandleOutput func(t *testing.T, output R)
+}
+
+type AppHandlerTestCase[T any] struct {
 	Name           string
 	Body           T
 	ExpectedStatus int
 }
 
-func RunTestCases[T any](
+func RunAppHandlerTestCases[T any](
 	t *testing.T,
 	mux *http.ServeMux,
 	method, endpoint string,
-	testCases []TestAppHandlerCase[T],
+	testCases []AppHandlerTestCase[T],
 ) {
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {

@@ -4,21 +4,22 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ZaphCode/F-SR-ChatApp/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+
+	"github.com/ZaphCode/F-SR-ChatApp/utils"
 )
 
-type MongoCrud[T any] struct {
+type mongoBaseCRUD[T any] struct {
 	Coll *mongo.Collection
 }
 
-func NewMongoCrud[T any](collection *mongo.Collection) MongoCrud[T] {
-	return MongoCrud[T]{collection}
+func newMongoBaseCRUD[T any](collection *mongo.Collection) mongoBaseCRUD[T] {
+	return mongoBaseCRUD[T]{collection}
 }
 
-func (m *MongoCrud[T]) FindAll() ([]T, error) {
+func (m *mongoBaseCRUD[T]) FindAll() ([]T, error) {
 	cursor, err := m.Coll.Find(context.TODO(), bson.D{})
 
 	if err != nil {
@@ -36,7 +37,7 @@ func (m *MongoCrud[T]) FindAll() ([]T, error) {
 	return docs, nil
 }
 
-func (m *MongoCrud[T]) FindByID(id uuid.UUID) (T, error) {
+func (m *mongoBaseCRUD[T]) FindByID(id uuid.UUID) (T, error) {
 	result := m.Coll.FindOne(
 		context.TODO(), bson.D{{Key: "id", Value: id}},
 	)
@@ -58,7 +59,7 @@ func (m *MongoCrud[T]) FindByID(id uuid.UUID) (T, error) {
 	return doc, nil
 }
 
-func (m *MongoCrud[T]) Save(doc *T) error {
+func (m *mongoBaseCRUD[T]) Save(doc *T) error {
 	res, err := m.Coll.InsertOne(context.TODO(), doc)
 
 	if err != nil {
@@ -72,7 +73,7 @@ func (m *MongoCrud[T]) Save(doc *T) error {
 	return nil
 }
 
-func (m *MongoCrud[T]) Update(id uuid.UUID, doc *T) error {
+func (m *mongoBaseCRUD[T]) Update(id uuid.UUID, doc *T) error {
 	res, err := m.Coll.UpdateOne(
 		context.TODO(), bson.D{{Key: "id", Value: id}}, bson.D{{Key: "$set", Value: doc}},
 	)
@@ -88,7 +89,7 @@ func (m *MongoCrud[T]) Update(id uuid.UUID, doc *T) error {
 	return nil
 }
 
-func (m *MongoCrud[T]) Remove(id uuid.UUID) error {
+func (m *mongoBaseCRUD[T]) Remove(id uuid.UUID) error {
 	res, err := m.Coll.DeleteOne(
 		context.TODO(), bson.D{{Key: "id", Value: id}},
 	)

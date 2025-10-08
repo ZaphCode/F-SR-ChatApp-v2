@@ -1,13 +1,14 @@
-package repositories
+package mongodb
 
 import (
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
 	"github.com/ZaphCode/F-SR-ChatApp/utils"
-	"github.com/google/uuid"
 )
 
 func Test_mongoDBUserRepo_FindByEmail(t *testing.T) {
