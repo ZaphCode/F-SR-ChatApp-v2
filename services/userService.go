@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
 	"github.com/ZaphCode/F-SR-ChatApp/utils"
-	"github.com/google/uuid"
 )
 
 func NewUserService(userRepo domain.UserRepository) domain.UserService {
@@ -70,16 +71,20 @@ func (s *userService) Authenticate(email, password string) (domain.User, error) 
 	return user, nil
 }
 
-func (s *userService) GetByEmail(email string) (domain.User, error) {
-	return s.userRepo.FindByEmail(email)
-}
-
 func (s *userService) GetAll() ([]domain.User, error) {
 	return s.userRepo.FindAll()
 }
 
 func (s *userService) UpdateProfileImg(id uuid.UUID, img string) error {
-	return nil
+	user, err := s.userRepo.FindByID(id)
+
+	if err != nil {
+		return err
+	}
+
+	user.ImageUrl = img
+
+	return s.userRepo.Update(id, &user)
 }
 
 func (s *userService) Delete(id uuid.UUID) error {
