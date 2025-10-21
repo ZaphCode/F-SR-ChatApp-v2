@@ -18,7 +18,7 @@ type Message struct {
 }
 
 type MessageService interface {
-	Create(sender, conversation uuid.UUID, content string) error
+	Create(sender, conversation uuid.UUID, content string) (Message, error)
 	Edit(sender, msg uuid.UUID, newContent string) error
 	React(user, msg uuid.UUID, reaction string) error
 	Delete(sender, msg uuid.UUID) error
@@ -28,6 +28,6 @@ type MessageService interface {
 type MessageRepository interface {
 	Save(msg *Message) error
 	FindAllFrom(conversation uuid.UUID) ([]Message, error)
-	FindByID(id uuid.UUID) (Message, error)
 	Update(id uuid.UUID, newMsg *Message) error
+	FindByID(id uuid.UUID) (Message, error) // Used for testing purposes
 }

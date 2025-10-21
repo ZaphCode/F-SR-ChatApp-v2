@@ -10,12 +10,6 @@ import (
 	"github.com/ZaphCode/F-SR-ChatApp/utils/mocks"
 )
 
-type CreateUserInput struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func TestUserService_Create(t *testing.T) {
 	newUser, err := testUserService.Create("test-user", "testuser@example.com", "password123")
 

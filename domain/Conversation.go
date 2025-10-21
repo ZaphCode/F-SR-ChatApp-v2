@@ -22,4 +22,5 @@ type ConversationRepository interface {
 	Save(conv *Conversation) error
 	FindFrom(userA, userB uuid.UUID) (Conversation, error)
 	FindAllFrom(user uuid.UUID) ([]Conversation, error)
+	FindByID(id uuid.UUID) (Conversation, error)
 }

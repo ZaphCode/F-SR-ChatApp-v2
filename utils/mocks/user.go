@@ -28,6 +28,14 @@ var UserB domain.User = domain.User{
 	CreatedAt: time.Now(),
 }
 
+var UserC domain.User = domain.User{
+	ID:        uuid.MustParse("33333333-3333-3333-3333-333333333333"),
+	Username:  "User C",
+	Email:     "userC@example.com",
+	Password:  "$2a$10$HDcYGQ/64RASOHgqWrsZ1u7SAscVrlUkinbgP.m4hpHjWX3saLm1W", // same as User B
+	CreatedAt: time.Now(),
+}
+
 //* User Repository Mock
 
 type userRepositoryMock struct {
@@ -41,6 +49,7 @@ func NewUserRepository() domain.UserRepository {
 		users: map[uuid.UUID]domain.User{
 			UserA.ID: UserA,
 			UserB.ID: UserB,
+			UserC.ID: UserC,
 		},
 	}
 }

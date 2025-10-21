@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ZaphCode/F-SR-ChatApp/domain"
 	"github.com/google/uuid"
+
+	"github.com/ZaphCode/F-SR-ChatApp/domain"
 )
 
 func NewConversationService(
@@ -44,14 +45,14 @@ func (s *conversationService) GetOrCreateFrom(userAID, userBID uuid.UUID) (domai
 			}
 		}
 
-		uid, err := uuid.NewUUID()
+		id, err := uuid.NewUUID()
 
 		if err != nil {
 			return conv, err
 		}
 
 		newConv := domain.Conversation{
-			ID:        uid,
+			ID:        id,
 			UserID_A:  userAID,
 			UserID_B:  userBID,
 			CreatedAt: time.Now(),
