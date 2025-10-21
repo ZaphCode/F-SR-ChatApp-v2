@@ -34,6 +34,15 @@ var MessageUserAtoUserB_2 domain.Message = domain.Message{
 	CreatedAt:      time.Now(),
 }
 
+var MessageUserBtoUserA_Deleted domain.Message = domain.Message{
+	ID:             uuid.MustParse("77777777-7777-7777-7777-777777777777"),
+	ConversationID: ConversationUserAUserB.ID,
+	SenderID:       UserB.ID,
+	Content:        "I fucking hate you!",
+	CreatedAt:      time.Now().Add(-10 * time.Minute),
+	DeletedAt:      time.Now(),
+}
+
 type messageRepositoryMock struct {
 	mu       sync.RWMutex
 	messages map[uuid.UUID]domain.Message
@@ -43,9 +52,10 @@ func NewMessageRepository() domain.MessageRepository {
 	return &messageRepositoryMock{
 		mu: sync.RWMutex{},
 		messages: map[uuid.UUID]domain.Message{
-			MessageUserAtoUserB_1.ID: MessageUserAtoUserB_1,
-			MessageUserBtoUserA_1.ID: MessageUserBtoUserA_1,
-			MessageUserAtoUserB_2.ID: MessageUserAtoUserB_2,
+			MessageUserAtoUserB_1.ID:       MessageUserAtoUserB_1,
+			MessageUserBtoUserA_1.ID:       MessageUserBtoUserA_1,
+			MessageUserAtoUserB_2.ID:       MessageUserAtoUserB_2,
+			MessageUserBtoUserA_Deleted.ID: MessageUserBtoUserA_Deleted,
 		},
 	}
 }

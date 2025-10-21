@@ -67,6 +67,14 @@ func (m *messageService) React(user uuid.UUID, msg uuid.UUID, reaction string) e
 		return errors.New("message not found")
 	}
 
+	if oldMsg.SenderID == user {
+		return errors.New("cannot react to own message")
+	}
+
+	if !oldMsg.DeletedAt.IsZero() {
+		return errors.New("cannot react to deleted message")
+	}
+
 	oldMsg.Reaction = reaction
 
 	if err := m.messageRepo.Update(msg, &oldMsg); err != nil {
@@ -85,6 +93,10 @@ func (m *messageService) Edit(sender uuid.UUID, msg uuid.UUID, newContent string
 
 	if oldMsg.SenderID != sender {
 		return errors.New("not authorized")
+	}
+
+	if !oldMsg.DeletedAt.IsZero() {
+		return errors.New("cannot edit deleted message")
 	}
 
 	oldMsg.Content = newContent
