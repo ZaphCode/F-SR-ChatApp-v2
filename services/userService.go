@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
-	"github.com/ZaphCode/F-SR-ChatApp/utils"
 )
 
 func NewUserService(userRepo domain.UserRepository) domain.UserService {
@@ -32,7 +32,7 @@ func (s *userService) Create(username, email, password string) (domain.User, err
 		return domain.User{}, errors.New("the email is already in use")
 	}
 
-	hashPass, err := utils.HashPassword(password)
+	hashPass, err := s.hashPassword(password)
 
 	if err != nil {
 		return domain.User{}, fmt.Errorf("failed to hash password: %w", err)
@@ -64,7 +64,7 @@ func (s *userService) Authenticate(email, password string) (domain.User, error) 
 		return domain.User{}, err
 	}
 
-	if err := utils.VerifyHashedPassword(user.Password, password); err != nil {
+	if err := s.verifyHashedPassword(user.Password, password); err != nil {
 		return domain.User{}, err
 	}
 
@@ -89,4 +89,19 @@ func (s *userService) UpdateProfileImg(id uuid.UUID, img string) error {
 
 func (s *userService) Delete(id uuid.UUID) error {
 	return s.userRepo.Remove(id)
+}
+
+// Helpers
+
+func (s *userService) hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
+}
+
+func (s *userService) verifyHashedPassword(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

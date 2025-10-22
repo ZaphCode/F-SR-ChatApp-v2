@@ -129,6 +129,8 @@ func (m *messageService) Delete(sender uuid.UUID, msg uuid.UUID) error {
 	return nil
 }
 
+// Helpers
+
 func (m *messageService) isUserInConversation(userID, convID uuid.UUID) (bool, error) {
 	conv, err := m.conversationRepo.FindByID(convID)
 
