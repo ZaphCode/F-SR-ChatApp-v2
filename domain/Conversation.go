@@ -8,8 +8,8 @@ import (
 
 type Conversation struct {
 	ID        uuid.UUID `json:"id"`
-	UserID_A  uuid.UUID `json:"user_id_a"` // FK
-	UserID_B  uuid.UUID `json:"user_id_b"` // FK
+	UserA     User      `json:"user_a"` // FK
+	UserB     User      `json:"user_b"` // FK
 	CreatedAt time.Time `json:"created_at"`
 }
 

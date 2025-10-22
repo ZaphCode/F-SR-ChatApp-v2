@@ -7,13 +7,14 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/ZaphCode/F-SR-ChatApp/domain"
+	"github.com/ZaphCode/F-SR-ChatApp/utils/mocks"
 )
 
 func TestMongoDBConversationRepository_Save(t *testing.T) {
 	conv := &domain.Conversation{
 		ID:        uuid.New(),
-		UserID_A:  uuid.New(),
-		UserID_B:  uuid.New(),
+		UserA:     mocks.UserA,
+		UserB:     mocks.UserB,
 		CreatedAt: time.Now(),
 	}
 
@@ -27,8 +28,8 @@ func TestMongoDBConversationRepository_Save(t *testing.T) {
 func TestMongoDBConversationRepository_SaveAndFindFrom(t *testing.T) {
 	conv := &domain.Conversation{
 		ID:        uuid.New(),
-		UserID_A:  uuid.New(),
-		UserID_B:  uuid.New(),
+		UserA:     domain.User{ID: uuid.New()},
+		UserB:     domain.User{ID: uuid.New()},
 		CreatedAt: time.Now(),
 	}
 
@@ -38,7 +39,7 @@ func TestMongoDBConversationRepository_SaveAndFindFrom(t *testing.T) {
 		t.Fatalf("Failed to save conversation: %v", err)
 	}
 
-	result, err := conversationRepo.FindFrom(conv.UserID_A, conv.UserID_B)
+	result, err := conversationRepo.FindFrom(conv.UserA.ID, conv.UserB.ID)
 
 	if err != nil {
 		t.Fatalf("Failed to find conversation: %v", err)
@@ -48,7 +49,7 @@ func TestMongoDBConversationRepository_SaveAndFindFrom(t *testing.T) {
 		t.Fatalf("Expected conversation ID %s, got %s", conv.ID, result.ID)
 	}
 
-	result, err = conversationRepo.FindFrom(conv.UserID_B, conv.UserID_A)
+	result, err = conversationRepo.FindFrom(conv.UserB.ID, conv.UserA.ID)
 
 	if err != nil {
 		t.Fatalf("Failed to find conversation: %v", err)
@@ -65,8 +66,8 @@ func TestMongoDBConversationRepository_SaveAndFindAll(t *testing.T) {
 	for range 2 {
 		err := conversationRepo.Save(&domain.Conversation{
 			ID:        uuid.New(),
-			UserID_A:  primaryUserID,
-			UserID_B:  uuid.New(),
+			UserA:     domain.User{ID: primaryUserID},
+			UserB:     domain.User{ID: uuid.New()},
 			CreatedAt: time.Now(),
 		})
 
@@ -78,8 +79,8 @@ func TestMongoDBConversationRepository_SaveAndFindAll(t *testing.T) {
 	for range 2 {
 		err := conversationRepo.Save(&domain.Conversation{
 			ID:        uuid.New(),
-			UserID_A:  uuid.New(),
-			UserID_B:  primaryUserID,
+			UserA:     domain.User{ID: uuid.New()},
+			UserB:     domain.User{ID: primaryUserID},
 			CreatedAt: time.Now(),
 		})
 
@@ -99,7 +100,7 @@ func TestMongoDBConversationRepository_SaveAndFindAll(t *testing.T) {
 	}
 
 	for _, c := range conversations {
-		t.Logf("Conversation ID: %s, User A: %s, User B: %s", c.ID, c.UserID_A, c.UserID_B)
+		t.Logf("Conversation ID: %s, User A: %s, User B: %s", c.ID, c.UserA.ID, c.UserB.ID)
 	}
 }
 

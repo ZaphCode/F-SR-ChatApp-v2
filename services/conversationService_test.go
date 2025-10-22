@@ -75,8 +75,8 @@ func TestConversationService_GetOrCreateFrom(t *testing.T) {
 				return
 			}
 
-			if (output.UserID_A != tc.Input.UserAID && output.UserID_A != tc.Input.UserBID) ||
-				(output.UserID_B != tc.Input.UserAID && output.UserID_B != tc.Input.UserBID) {
+			if (output.UserA.ID != tc.Input.UserAID && output.UserA.ID != tc.Input.UserBID) ||
+				(output.UserB.ID != tc.Input.UserAID && output.UserB.ID != tc.Input.UserBID) {
 				t.Errorf("conversation users do not match input IDs")
 			}
 
@@ -107,7 +107,7 @@ func TestConversationService_GetAllFrom(t *testing.T) {
 	}
 
 	for _, conv := range cs {
-		if conv.UserID_A != mocks.UserA.ID && conv.UserID_B != mocks.UserA.ID {
+		if conv.UserA.ID != mocks.UserA.ID && conv.UserB.ID != mocks.UserA.ID {
 			t.Errorf("conversation does not belong to user A")
 		}
 	}

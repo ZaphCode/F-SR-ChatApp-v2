@@ -26,18 +26,24 @@ func (s *conversationService) GetOrCreateFrom(userAID, userBID uuid.UUID) (domai
 		return domain.Conversation{}, fmt.Errorf("userA and userB are the same")
 	}
 
+	var conv domain.Conversation
+
 	conv, err := s.conversationRepo.FindFrom(userAID, userBID)
 
 	if err != nil {
 		errChan := make(chan error, 2)
 
-		check := func(id uuid.UUID) {
-			_, err := s.userRepository.FindByID(id)
+		go func() {
+			userA, err := s.userRepository.FindByID(userAID)
 			errChan <- err
-		}
+			conv.UserA = userA
+		}()
 
-		go check(userAID)
-		go check(userBID)
+		go func() {
+			userB, err := s.userRepository.FindByID(userBID)
+			errChan <- err
+			conv.UserB = userB
+		}()
 
 		for range 2 {
 			if err := <-errChan; err != nil {
@@ -51,18 +57,14 @@ func (s *conversationService) GetOrCreateFrom(userAID, userBID uuid.UUID) (domai
 			return conv, err
 		}
 
-		newConv := domain.Conversation{
-			ID:        id,
-			UserID_A:  userAID,
-			UserID_B:  userBID,
-			CreatedAt: time.Now(),
-		}
+		conv.ID = id
+		conv.CreatedAt = time.Now()
 
-		if err := s.conversationRepo.Save(&newConv); err != nil {
+		if err := s.conversationRepo.Save(&conv); err != nil {
 			return conv, err
 		}
 
-		return newConv, nil
+		return conv, nil
 	}
 
 	return conv, nil

@@ -138,5 +138,5 @@ func (m *messageService) isUserInConversation(userID, convID uuid.UUID) (bool, e
 		return false, errors.New("conversation not found")
 	}
 
-	return conv.UserID_A == userID || conv.UserID_B == userID, nil
+	return conv.UserA.ID == userID || conv.UserB.ID == userID, nil
 }

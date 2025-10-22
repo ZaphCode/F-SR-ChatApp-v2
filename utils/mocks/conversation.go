@@ -14,8 +14,8 @@ import (
 
 var ConversationUserAUserB domain.Conversation = domain.Conversation{
 	ID:        uuid.MustParse("33333333-3333-3333-3333-333333333333"),
-	UserID_A:  UserA.ID,
-	UserID_B:  UserB.ID,
+	UserA:     UserA,
+	UserB:     UserB,
 	CreatedAt: time.Now(),
 }
 
@@ -35,26 +35,26 @@ func NewConversationRepository() domain.ConversationRepository {
 	}
 }
 
-func (c *conversationRepositoryMock) FindAllFrom(user uuid.UUID) ([]domain.Conversation, error) {
+func (c *conversationRepositoryMock) FindAllFrom(userID uuid.UUID) ([]domain.Conversation, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	var result []domain.Conversation
 	for _, conv := range c.conversations {
-		if conv.UserID_A == user || conv.UserID_B == user {
+		if conv.UserA.ID == userID || conv.UserB.ID == userID {
 			result = append(result, conv)
 		}
 	}
 	return result, nil
 }
 
-func (c *conversationRepositoryMock) FindFrom(userA uuid.UUID, userB uuid.UUID) (domain.Conversation, error) {
+func (c *conversationRepositoryMock) FindFrom(userAID uuid.UUID, userBID uuid.UUID) (domain.Conversation, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	for _, conv := range c.conversations {
-		if (conv.UserID_A == userA && conv.UserID_B == userB) ||
-			(conv.UserID_A == userB && conv.UserID_B == userA) {
+		if (conv.UserA.ID == userAID && conv.UserB.ID == userBID) ||
+			(conv.UserA.ID == userBID && conv.UserB.ID == userAID) {
 			return conv, nil
 		}
 	}
