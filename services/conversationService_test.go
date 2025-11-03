@@ -113,4 +113,18 @@ func TestConversationService_GetAllFrom(t *testing.T) {
 	}
 
 	utils.PrettyPrint(cs)
+
+	if err := testUserService.UpdateProfileImg(mocks.UserA.ID, "new_image.png"); err != nil {
+		t.Fatalf("failed to update profile image: %v", err)
+	}
+
+	cs, err = testConversationService.GetAllFrom(mocks.UserA.ID)
+
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+
+	if cs[0].UserA.ImageUrl != "new_image.png" {
+		t.Errorf("expected updated profile image for UserA, got: %v", cs[0].UserA.ImageUrl)
+	}
 }

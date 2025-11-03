@@ -23,12 +23,12 @@ func NewConversationRepository(coll *mongo.Collection) domain.ConversationReposi
 func (r *mongoDBConversationRepo) FindFrom(userA, userB uuid.UUID) (domain.Conversation, error) {
 	filter := bson.D{{Key: "$or", Value: bson.A{
 		bson.D{
-			{Key: "userid_a", Value: userA},
-			{Key: "userid_b", Value: userB},
+			{Key: "usera.id", Value: userA},
+			{Key: "userb.id", Value: userB},
 		},
 		bson.D{
-			{Key: "userid_a", Value: userB},
-			{Key: "userid_b", Value: userA},
+			{Key: "usera.id", Value: userB},
+			{Key: "userb.id", Value: userA},
 		},
 	}}}
 
@@ -49,8 +49,8 @@ func (r *mongoDBConversationRepo) FindFrom(userA, userB uuid.UUID) (domain.Conve
 
 func (r *mongoDBConversationRepo) FindAllFrom(userID uuid.UUID) ([]domain.Conversation, error) {
 	filter := bson.D{{Key: "$or", Value: bson.A{
-		bson.D{{Key: "userid_a", Value: userID}},
-		bson.D{{Key: "userid_b", Value: userID}},
+		bson.D{{Key: "usera.id", Value: userID}},
+		bson.D{{Key: "userb.id", Value: userID}},
 	}}}
 
 	result, err := r.Coll.Find(context.Background(), filter)
